@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  database:
+    container_name: flask-crud
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: masry
+      POSTGRES_PASSWORD: masry123
+      POSTGRES_DB: flask
+    ports:
+      - '5442:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: flask-crud-pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com  # Default login email
+      PGADMIN_DEFAULT_PASSWORD: admin         # Default login password
+    ports:
+      - '5050:80'  # Expose pgAdmin on localhost:5050
+
+volumes:
+  postgres_data:  # Persistent storage for PostgreSQL data
