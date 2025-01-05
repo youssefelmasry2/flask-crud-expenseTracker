@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from flask_restx import Api
 from app.extensions import db, jwt
 from app.routes.auth import auth_ns
@@ -33,6 +34,8 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
     api.init_app(app)
+    
+    CORS(app, resources={r"/*": {"origins": "*"}})  # Allow any origin
 
     # Register namespaces
     api.add_namespace(auth_ns, path='/auth')
