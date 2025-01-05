@@ -1,6 +1,29 @@
 from flask import Flask
-from app.extensions import db
 from flask_restx import Api
+from app.extensions import db, jwt
+from app.routes.auth import auth_ns
+from app.routes.expenses import expenses_ns
+from app.utils.error_handlers import api
+
+# Define the authorization scheme
+authorizations = {
+    'Bearer Auth': {
+        'type': 'apiKey',
+        'in': 'header',
+        'name': 'Authorization',
+        'description': 'Enter your JWT token in the format: Bearer <token>'
+    }
+}
+
+# Initialize the Api object with authorizations
+api = Api(
+    version='1.0',
+    title='Expense Tracker API',
+    description='An API for managing expenses',
+    doc='/swagger/',  # Swagger UI endpoint
+    authorizations=authorizations,  # Add authorization scheme
+    security='Bearer Auth'  # Enable security globally
+)
 
 def create_app():
     app = Flask(__name__)
@@ -8,18 +31,14 @@ def create_app():
 
     # Initialize extensions
     db.init_app(app)
-    
-     # Register blueprints
-    
-     # Set up Flask-RESTx API
-    api = Api(app, version='1.0', title='Flask CRUD API',
-              description='A simple CRUD API with PostgreSQL and Flask.')
+    jwt.init_app(app)
+    api.init_app(app)
 
     # Register namespaces
-    from app.routes import main_ns
-    api.add_namespace(main_ns, path='/')
+    api.add_namespace(auth_ns, path='/auth')
+    api.add_namespace(expenses_ns, path='/expenses')
 
-    # Create database tables (useful during development)
+    # Create database tables
     with app.app_context():
         db.create_all()
 
